@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::error;
 
 fn main() -> Result<(), Box<dyn error::Error>> {
@@ -13,7 +12,7 @@ fn main() -> Result<(), Box<dyn error::Error>> {
     Ok(())
 }
 
-fn print(set: HashSet<String>, isogram: bool) {
+fn print(set: Vec<String>, isogram: bool) {
     println!("isogram: {}", isogram);
     println!("results: {}", set.len());
     set.iter().enumerate().for_each(|(i, item)| {

@@ -193,7 +193,7 @@ impl Search {
         s.chars().all(|c| set.insert(c))
     }
 
-    pub fn search(&self, set: HashSet<String>) -> (HashSet<String>, bool) {
+    pub fn search(&self, set: Vec<String>) -> (Vec<String>, bool) {
         let correct_spot = self.get_correct_spots();
         let wrong_spot = self.get_wrong_spots();
         let not_any_spot = self.get_not_any_spots();
@@ -201,7 +201,7 @@ impl Search {
         let set = if self.isogram {
             set.into_iter()
                 .filter(|word| Search::is_isogram(word))
-                .collect::<HashSet<String>>()
+                .collect::<Vec<String>>()
         } else {
             set
         };
@@ -239,7 +239,7 @@ impl Search {
 
                 return true;
             })
-            .collect::<HashSet<String>>();
+            .collect::<Vec<String>>();
 
         (result, self.isogram)
     }

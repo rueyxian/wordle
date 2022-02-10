@@ -7,7 +7,7 @@ use std::io::BufRead;
 // use std::io::Read;
 // use std::path;
 
-use std::collections::HashSet;
+// use std::collections::HashSet;
 
 // ===============================================
 
@@ -29,7 +29,7 @@ impl WordVault {
         }
     }
 
-    pub fn read_vault(&self) -> Result<HashSet<String>, Error> {
+    pub fn read_vault(&self) -> Result<Vec<String>, Error> {
         let path = std::path::Path::new(self.path.as_str());
         let file = std::fs::File::open(path).map_err(|e| Error::OpenError(e))?;
 
@@ -39,11 +39,15 @@ impl WordVault {
         let words = buf_reader
             .lines()
             .map(|line| line.map_err(|e| Error::ReadError(e)).unwrap())
-            .collect::<HashSet<String>>();
+            .collect::<Vec<String>>();
 
         Ok(words)
     }
 }
+
+
+
+
 
 // ===============================================
 
