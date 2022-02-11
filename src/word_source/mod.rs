@@ -17,11 +17,11 @@ pub enum Error {
     ReadError(std::io::Error),
 }
 
-pub struct WordVault {
+pub struct WordSource {
     path: String,
 }
 
-impl WordVault {
+impl WordSource {
     pub fn new() -> Self {
         let home = std::env::var("HOME").unwrap();
         Self {
@@ -45,7 +45,7 @@ impl WordVault {
     }
 }
 
-
+// ===============================================
 
 
 
@@ -59,6 +59,6 @@ mod test {
     #[ignore]
     #[test]
     fn basic() {
-        let _wv = WordVault::new();
+        let _wv = WordSource::new();
     }
 }

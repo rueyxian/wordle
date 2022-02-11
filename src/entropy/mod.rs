@@ -2,46 +2,42 @@
 // ===============================================
 // ===============================================================================================
 
-mod pattern;
-
-use std::collections::HashMap;
-
-use crate::permutation::Permutations;
+use super::pattern;
+use super::permutation;
 
 // ===============================================
 
 #[derive(Debug)]
-pub enum Error {
-    AddPattern,
-}
-
-// ===============================================
-
-#[derive(Debug)]
-struct WordEntropy {
-    word: String,
+struct WordEntropy<'a> {
+    word: &'a str,
     bit: f64,
 }
 
-impl WordEntropy {
+impl<'a> WordEntropy<'a> {
     fn new(
-        word: &str,
+        word: &'a str,
         pattern_perm: &Vec<String>,
-        curr_pattern_stack: &pattern::PatternStack,
-        curr_words: &Vec<String>,
+        curr_pattern_stack: &mut pattern::PatternStack,
+        // curr_words: &Vec<String>,
+        curr_words: &Vec<&str>,
     ) -> Self {
         let mut sum_probability: f64 = 0.0;
 
         let mut occurance = 0;
 
         for pattern_str in pattern_perm.iter() {
-            let pattern = pattern::Pattern::try_from((word, pattern_str.as_str())).unwrap();
+            let pattern = pattern::PatternLine::try_from((word, pattern_str.as_str())).unwrap();
 
-            let mut possible_pattern = curr_pattern_stack.to_owned();
-            possible_pattern.add_pattern(pattern).unwrap();
+            // let mut possible_pattern = curr_pattern_stack;
+            // possible_pattern.add_pattern_line(pattern).unwrap();
+            //
+            // let probability =
+            //     possible_pattern.possible_word_count(curr_words) as f64 / curr_words.len() as f64;
 
+            // curr_pattern_stack.add_pattern_line(pattern).unwrap();
             let probability =
-                possible_pattern.possible_word_count(curr_words) as f64 / curr_words.len() as f64;
+                curr_pattern_stack.possible_word_count(curr_words) as f64 / curr_words.len() as f64;
+            // curr_pattern_stack.remove_last_pattern_line();
 
             if probability.abs() < f64::EPSILON {
                 occurance += 1;
@@ -53,50 +49,66 @@ impl WordEntropy {
         let probability = sum_probability / occurance as f64;
         let bit = -(probability.log2());
 
-        Self {
-            word: word.to_owned(),
-            bit,
-        }
+        Self { word, bit }
     }
 }
 
 // ===============================================
 
-struct Universe {
-    curr_words: Vec<String>,
+pub struct Universe<'a> {
+    curr_words: Vec<&'a str>,
     unit_count: usize,
-    curr_pattern_stack: pattern::PatternStack,
+    curr_pattern_stack: pattern::stack::PatternStack,
 
-    pattern_perm: Vec<String>,
+    pattern_perms: Vec<String>,
 }
 
-impl Universe {
-    fn new(unit_count: usize, words: Vec<String>) -> Self {
+impl<'a> Universe<'a> {
+    pub fn new(unit_count: usize, words: Vec<&'a str>) -> Self {
         let mut pattern_perm = Vec::<String>::new();
-        let iter = Permutations::new(&["#", "?", "!"], unit_count);
+        let iter = permutation::Permutations::new(&["#", "?", "!"], unit_count);
 
         iter.for_each(|perm| pattern_perm.push(perm.join("")));
 
         Self {
             curr_words: words,
             unit_count,
-            curr_pattern_stack: pattern::PatternStack::new(unit_count),
-            pattern_perm,
+            curr_pattern_stack: pattern::stack::PatternStack::new(unit_count),
+            pattern_perms: pattern_perm,
         }
     }
 
     fn generate_word_entropies(&self) -> Vec<WordEntropy> {
         let mut word_entropies = Vec::with_capacity(self.curr_words.len());
+        let mut curr_pattern_stack = self.curr_pattern_stack.clone();
+
         for word in &self.curr_words {
             let word_entropy = WordEntropy::new(
                 word,
-                &self.pattern_perm,
-                &self.curr_pattern_stack,
+                &self.pattern_perms,
+                &mut curr_pattern_stack,
                 &self.curr_words,
             );
             word_entropies.push(word_entropy);
         }
         word_entropies
+    }
+
+    // TODO: TEMPORARY!!!!!
+    fn generate_possible_pattern_lines(&self) -> Vec<(&str, Vec<pattern::PatternLine>)> {
+        let mut lines =
+            Vec::<(&str, Vec<pattern::PatternLine>)>::with_capacity(self.curr_words.len());
+
+        for &word in &self.curr_words {
+            let mut possible = Vec::<pattern::PatternLine>::with_capacity(self.pattern_perms.len());
+
+            for perm in &self.pattern_perms {
+                let pattern_line = pattern::PatternLine::try_from((word, perm.as_str())).unwrap();
+                possible.push(pattern_line);
+            }
+            lines.push((word, possible));
+        }
+        lines
     }
 }
 
@@ -106,38 +118,19 @@ impl Universe {
 mod tests {
 
     use super::*;
-    use crate::permutation::Permutations;
-    use crate::vault::WordVault;
-
-    use crate::entropy::pattern::Pattern;
-    use crate::entropy::pattern::PatternStack;
-
-    // ===============================================
-
-    // #[ignore]
-    // #[test]
-    // fn entropy() {
-    //     let wv = WordVault::new();
-    //     let words = wv.read_vault().unwrap();
-    //
-    //     let mut patterns = PatternVec::new(5);
-    //     let _ = patterns.add_pattern(Pattern::try_from("#c ?r #a #n #e").unwrap());
-    //     let _ = patterns.add_pattern(Pattern::try_from("#s #t ?o ?r #y").unwrap());
-    //
-    //     println!("patterns: {:?}", patterns);
-    //
-    //     let possibles = patterns.possible_words(&words);
-    //
-    //     println!("possible_words: {:?}", possibles);
-    // }
+    use crate::word_source::WordSource;
 
     // ===============================================
 
     // #[ignore]
     #[test]
     fn generate_entropies() {
-        let wv = WordVault::new();
+        let wv = WordSource::new();
         let words = wv.read_vault().unwrap();
+        let words = words
+            .iter()
+            .map(|word| word.as_str())
+            .collect::<Vec<&str>>();
 
         // let words = vec![
         //     "okays", "loons", "howdy", "likes", "frump", "lures", "hiked", "laird", "sinew",
@@ -176,14 +169,11 @@ mod tests {
         //     "mammy", "rerun", "pizza", "surfs", "weeps", "coded", "pages", "dhows", "dries",
         //     "pokey", "beads", "pixel", "ranee", "gales", "manor", "scrap", "spars", "toads",
         //     "venom", "gizmo", "panic", "remix", "smogs", "humid",
-        // ]
-        // .into_iter()
-        // .map(|s| s.to_owned())
-        // .collect::<Vec<String>>();
+        // ];
 
         println!("words len: {}", words.len());
 
-        let mut universe = Universe::new(5, words);
+        let universe = Universe::new(5, words);
 
         let entropies = universe.generate_word_entropies();
 
@@ -193,11 +183,29 @@ mod tests {
     }
 
     // ===============================================
+    #[ignore]
+    #[test]
+    fn generate_pattern_line() {
+        let wv = WordSource::new();
+        let words = wv.read_vault().unwrap();
+        let words = words
+            .iter()
+            .map(|word| word.as_str())
+            .collect::<Vec<&str>>();
+
+        let universe = Universe::new(5, words);
+
+        let possible_patterns = universe.generate_possible_pattern_lines();
+
+        println!("{:?}", possible_patterns);
+    }
+
+    // ===============================================
 
     #[ignore]
     #[test]
     fn temp() {
-        let wv = WordVault::new();
+        let wv = WordSource::new();
         let words = wv.read_vault().unwrap();
 
         // let set =  std::collections::HashSet::new();
