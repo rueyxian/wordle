@@ -17,19 +17,20 @@ pub enum Error {
     ReadError(std::io::Error),
 }
 
-pub struct WordSource {
+pub struct WordPool {
     path: String,
 }
 
-impl WordSource {
+impl WordPool {
     pub fn new() -> Self {
         let home = std::env::var("HOME").unwrap();
         Self {
-            path: format!("{}/.wordle/vault", home),
+            // path: format!("{}/.wordle/word_pool", home),
+            path: format!("{}/.wordle/original_pool", home),
         }
     }
 
-    pub fn read_vault(&self) -> Result<Vec<String>, Error> {
+    pub fn read_pool(&self) -> Result<Vec<String>, Error> {
         let path = std::path::Path::new(self.path.as_str());
         let file = std::fs::File::open(path).map_err(|e| Error::OpenError(e))?;
 
@@ -47,8 +48,6 @@ impl WordSource {
 
 // ===============================================
 
-
-
 // ===============================================
 
 #[cfg(test)]
@@ -59,6 +58,6 @@ mod test {
     #[ignore]
     #[test]
     fn basic() {
-        let _wv = WordSource::new();
+        let _wv = WordPool::new();
     }
 }

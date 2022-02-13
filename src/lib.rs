@@ -4,7 +4,7 @@
 
 pub mod cli;
 
-pub mod word_source;
+pub mod word_pool;
 
 pub mod permutation;
 
@@ -21,8 +21,8 @@ use std::error;
 // ===============================================
 
 pub fn search(input: &str) -> Result<Vec<String>, Box<dyn error::Error>> {
-    let wv = word_source::WordSource::new();
-    let word_set = wv.read_vault().unwrap();
+    let wv = word_pool::WordPool::new();
+    let word_set = wv.read_pool().unwrap();
     let word_set = word_set
         .iter()
         .map(|word| word.as_str())
@@ -58,17 +58,11 @@ pub fn search(input: &str) -> Result<Vec<String>, Box<dyn error::Error>> {
 
 // ===============================================
 
-pub fn clear_screen() {
-    print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-}
-
-// ===============================================
-
 #[cfg(test)]
 mod tests {
 
     // use crate::search::Search;
-    use crate::word_source::WordSource;
+    use crate::word_pool::WordPool;
 
     #[ignore]
     #[test]

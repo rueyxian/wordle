@@ -23,7 +23,7 @@ impl PatternStack {
         Self {
             unit_count,
             // ..Default::default()
-            //TODO: fix this stupid declaration
+            //FIXME: fix this stupid declaration
             stack: Vec::with_capacity(6),
         }
     }
@@ -56,7 +56,7 @@ impl PatternStack {
                     unit::Unit::NotAny(c) => word.chars().any(|c0| {
                         // Repeated letters on the same line, one of them is correct.
                         // For example: #r ?u ?l !e !r
-                        // Eventhough, the first letter `r` is marked as `not any`, 
+                        // Eventhough, the first letter `r` is marked as `not any`,
                         // we shouldn't rule out any words that contains `r` in the word set.
                         let corner_case = pattern_line.units.iter().any(|unit| match unit {
                             unit::Unit::Correct(c1) => c0 == *c1,
@@ -77,11 +77,19 @@ impl PatternStack {
             .iter()
             .filter(|word| self.is_possible_word(word))
             .cloned()
-            // .map(|word| *word)
             .collect::<Vec<&str>>()
     }
 
-    pub fn possible_word_count(&self, words: &Vec<&str>) -> u64 {
+    // // FIXME: High overhead
+    // pub fn possible_word_count(&self, words: &Vec<&str>) -> u64 {
+    //     words
+    //         .iter()
+    //         .filter(|word| self.is_possible_word(word))
+    //         .count() as u64
+    // }
+
+
+    pub fn possible_word_count(&self, words: &Vec<String>) -> u64 {
         words
             .iter()
             .filter(|word| self.is_possible_word(word))
@@ -100,10 +108,6 @@ impl PatternStack {
     //     let probability = possible_words.len() as f64 / words.len() as f64;
     //     let information = -probability.log2();
     //     (possible_words, information)
-    // }
-
-    // fn possible_next_patterns(current: PatternVec, word: &str) -> HashSet<PatternVec> {
-    //     todo!()
     // }
 }
 
