@@ -1,5 +1,5 @@
 [package]
-name = "wordle"
+name = "wordle_solver"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,4 +8,3 @@ edition = "2021"
 [dependencies]
 regex = "1.5.4"
 rayon = "1.5.1"
-threadpool = "1.8.1"

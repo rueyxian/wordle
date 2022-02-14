@@ -33,7 +33,6 @@ impl TryFrom<&str> for PatternLine {
         for letters in cap.split_whitespace() {
             let mut letters_iter = letters.chars();
             match letters_iter.next() {
-                // Some(letter @ 'a'..='z') => units.push(Unit::Correct(letter)),
                 Some('!') => units.push(unit::Unit::Correct(letters_iter.next().unwrap())),
                 Some('?') => units.push(unit::Unit::Wrong(letters_iter.next().unwrap())),
                 Some('#') => units.push(unit::Unit::NotAny(letters_iter.next().unwrap())),

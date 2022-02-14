@@ -28,7 +28,7 @@ impl PatternStack {
         }
     }
 
-    pub fn add_pattern_line(&mut self, line: line::PatternLine) -> Result<(), Error> {
+    pub fn progress(&mut self, line: line::PatternLine) -> Result<(), Error> {
         (line.units.len() == self.unit_count.into())
             .then(|| ())
             .ok_or(Error::AddPatternLine)?;
@@ -36,8 +36,8 @@ impl PatternStack {
         Ok(())
     }
 
-    pub fn remove_last_pattern_line(&mut self) {
-        self.stack.pop();
+    pub fn revert(&mut self) -> Option<line::PatternLine> {
+        self.stack.pop()
     }
 
     fn is_possible_word(&self, word: &str) -> bool {
@@ -72,15 +72,22 @@ impl PatternStack {
         true
     }
 
-    pub fn possible_words<'a>(&self, words: &Vec<&'a str>) -> Vec<&'a str> {
+    pub fn possible_words(&self, words: &Vec<String>) -> Vec<String> {
         words
             .iter()
-            .filter(|word| self.is_possible_word(word))
+            .filter(|&word| self.is_possible_word(word))
             .cloned()
-            .collect::<Vec<&str>>()
+            .collect::<Vec<String>>()
     }
 
-    // // FIXME: High overhead
+    // pub fn possible_words<'a>(&self, words: &Vec<&'a str>) -> Vec<&'a str> {
+    //     words
+    //         .iter()
+    //         .filter(|word| self.is_possible_word(word))
+    //         .cloned()
+    //         .collect::<Vec<&str>>()
+    // }
+
     // pub fn possible_word_count(&self, words: &Vec<&str>) -> u64 {
     //     words
     //         .iter()
@@ -88,27 +95,12 @@ impl PatternStack {
     //         .count() as u64
     // }
 
-
     pub fn possible_word_count(&self, words: &Vec<String>) -> u64 {
         words
             .iter()
             .filter(|word| self.is_possible_word(word))
             .count() as u64
     }
-
-    // pub fn calculate_info_qty(&self, words: Vec<String>) -> f64 {
-    //     let possible_words = self.possible_words(&words);
-    //     let probability = possible_words.len() as f64 / words.len() as f64;
-    //     let info_qty = -probability.log2();
-    //     info_qty
-    // }
-
-    // pub fn information(&self, words: Vec<String>) -> (Vec<String>, f64) {
-    //     let possible_words = self.possible_words(&words);
-    //     let probability = possible_words.len() as f64 / words.len() as f64;
-    //     let information = -probability.log2();
-    //     (possible_words, information)
-    // }
 }
 
 impl std::fmt::Display for PatternStack {
