@@ -3,7 +3,7 @@ use std::error;
 // ===============================================
 
 fn main() -> Result<(), Box<dyn error::Error>> {
-    wordle::cli::run()?;
+    wordle_cheat::cli::run()?;
     Ok(())
 }
 

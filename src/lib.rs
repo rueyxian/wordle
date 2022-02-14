@@ -1,14 +1,9 @@
-// ========================
-// ===============================================
-// ===============================================================================================
 
 pub mod cli;
 
 pub mod word_pool;
 
 pub mod permutation;
-
-// pub mod search;
 
 pub mod pattern;
 
@@ -70,10 +65,9 @@ mod tests {
         // let wv = WordPool::new();
         // let words = wv.read_pool().unwrap();
 
-
         let universe = universe::Universe::new(5, words);
         let v = universe.entropy_ranking(1000);
-    println!("");
+        println!("");
 
         println!("{:?}", v);
     }

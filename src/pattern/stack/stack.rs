@@ -80,20 +80,6 @@ impl PatternStack {
             .collect::<Vec<String>>()
     }
 
-    // pub fn possible_words<'a>(&self, words: &Vec<&'a str>) -> Vec<&'a str> {
-    //     words
-    //         .iter()
-    //         .filter(|word| self.is_possible_word(word))
-    //         .cloned()
-    //         .collect::<Vec<&str>>()
-    // }
-
-    // pub fn possible_word_count(&self, words: &Vec<&str>) -> u64 {
-    //     words
-    //         .iter()
-    //         .filter(|word| self.is_possible_word(word))
-    //         .count() as u64
-    // }
 
     pub fn possible_word_count(&self, words: &Vec<String>) -> u64 {
         words
