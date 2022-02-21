@@ -1,12 +1,14 @@
-pub mod stack;
+mod pattern_unit;
 
-// ===============================================
+mod pattern_line;
 
-pub use stack::Error;
+mod pattern_stack;
 
-pub use stack::PatternStack;
 
-pub use stack::PatternLine;
+// ========================
 
-// ===============================================
+pub use pattern_stack::PatternStack;
 
+pub use pattern_line::PatternLine;
+
+use pattern_unit::PatternUnit;

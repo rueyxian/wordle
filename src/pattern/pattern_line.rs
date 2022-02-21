@@ -1,4 +1,4 @@
-use super::unit;
+use crate::pattern;
 
 use regex::Regex;
 
@@ -14,7 +14,7 @@ pub enum Error {
 
 #[derive(Debug, Clone)]
 pub struct PatternLine {
-    pub units: Vec<unit::Unit>,
+    pub units: Vec<pattern::PatternUnit>,
 }
 
 impl TryFrom<&str> for PatternLine {
@@ -29,13 +29,15 @@ impl TryFrom<&str> for PatternLine {
             .captures(s.as_str())
             .ok_or(Error::TryFromStr(value.to_owned()))?;
         let cap = caps.name("units").map_or("", |m| m.as_str()).trim_start();
-        let mut units = Vec::<unit::Unit>::with_capacity(cap.len());
+        let mut units = Vec::<pattern::PatternUnit>::with_capacity(cap.len());
         for letters in cap.split_whitespace() {
             let mut letters_iter = letters.chars();
             match letters_iter.next() {
-                Some('!') => units.push(unit::Unit::Correct(letters_iter.next().unwrap())),
-                Some('?') => units.push(unit::Unit::Wrong(letters_iter.next().unwrap())),
-                Some('#') => units.push(unit::Unit::NotAny(letters_iter.next().unwrap())),
+                Some('!') => {
+                    units.push(pattern::PatternUnit::Correct(letters_iter.next().unwrap()))
+                }
+                Some('?') => units.push(pattern::PatternUnit::Wrong(letters_iter.next().unwrap())),
+                Some('#') => units.push(pattern::PatternUnit::NotAny(letters_iter.next().unwrap())),
                 _ => unreachable!(),
             };
         }
@@ -49,12 +51,12 @@ impl TryFrom<(&str, &str)> for PatternLine {
         if word.len() != pattern.len() {
             return Err(Error::TryFromStrStr(word.to_owned(), pattern.to_owned()));
         }
-        let mut units = Vec::<unit::Unit>::with_capacity(word.len());
+        let mut units = Vec::<pattern::PatternUnit>::with_capacity(word.len());
         for (c, u) in word.to_lowercase().chars().zip(pattern.chars()) {
             units.push(match u {
-                '!' => unit::Unit::Correct(c),
-                '?' => unit::Unit::Wrong(c),
-                '#' => unit::Unit::NotAny(c),
+                '!' => pattern::PatternUnit::Correct(c),
+                '?' => pattern::PatternUnit::Wrong(c),
+                '#' => pattern::PatternUnit::NotAny(c),
                 _ => return Err(Error::TryFromStrStr(word.to_owned(), pattern.to_owned())),
             });
         }

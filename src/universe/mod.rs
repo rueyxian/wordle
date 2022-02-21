@@ -1,10 +1,7 @@
-// ========================
-// ===============================================
-// ===============================================================================================
 
-use super::entropy;
-use super::pattern;
-use super::permutation;
+use crate::entropy;
+use crate::pattern;
+use crate::permutation;
 
 // ===============================================
 
@@ -18,8 +15,7 @@ pub enum Error {
 pub struct Universe {
     // unit_count: usize,
     entropy_stack: entropy::EntropyStack,
-    pattern_stack: pattern::stack::PatternStack,
-
+    pattern_stack: pattern::PatternStack,
     pattern_perms: Vec<String>,
 }
 
@@ -29,7 +25,7 @@ impl Universe {
         let perm_iter = permutation::Permutations::new(&["#", "?", "!"], unit_count);
         perm_iter.for_each(|perm| pattern_perm.push(perm.join("")));
 
-        let pattern_stack = pattern::stack::PatternStack::new(unit_count);
+        let pattern_stack = pattern::PatternStack::new(unit_count);
 
         let mut entropy_stack = entropy::EntropyStack::new();
         entropy_stack.progress(&pattern_perm, &pattern_stack, &words);
@@ -44,7 +40,7 @@ impl Universe {
 
     // ========================
 
-    pub fn progress(&mut self, pattern_line: pattern::stack::PatternLine) {
+    pub fn progress(&mut self, pattern_line: pattern::PatternLine) {
         self.pattern_stack.progress(pattern_line).unwrap();
 
         let words = self.entropy_stack.current_words();
@@ -61,6 +57,7 @@ impl Universe {
     }
 
     // ========================
+
     pub fn posibility(&self) -> usize {
         self.entropy_stack.current_entropy_count()
     }
